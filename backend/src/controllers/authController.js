@@ -87,6 +87,55 @@ export async function updateProfile(req, res) {
   res.json({ success: true, user: { id: req.user.id, name } });
 }
 
+export async function changePassword(req, res) {
+  const { currentPassword, newPassword } = req.body;
+
+  const users = await query(
+    'SELECT password_hash FROM users WHERE id=? LIMIT 1',
+    [req.user.id],
+  );
+
+  if (!users.length) {
+    throw new HttpError(404, 'Account not found.');
+  }
+
+  const currentPasswordMatches = await bcrypt.compare(
+    currentPassword,
+    users[0].password_hash,
+  );
+
+  if (!currentPasswordMatches) {
+    throw new HttpError(400, 'Your current password is incorrect.');
+  }
+
+  const reusingCurrentPassword = await bcrypt.compare(
+    newPassword,
+    users[0].password_hash,
+  );
+
+  if (reusingCurrentPassword) {
+    throw new HttpError(400, 'Your new password must be different from your current password.');
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+
+  await query(
+    'UPDATE users SET password_hash=? WHERE id=?',
+    [passwordHash, req.user.id],
+  );
+
+  // A password change invalidates any outstanding password-reset links.
+  await query(
+    'UPDATE password_reset_tokens SET used_at=UTC_TIMESTAMP() WHERE user_id=? AND used_at IS NULL',
+    [req.user.id],
+  );
+
+  res.json({
+    success: true,
+    message: 'Your password has been changed successfully.',
+  });
+}
+
 export async function requestPasswordReset(req, res) {
   const email = String(req.body.email || '').trim().toLowerCase();
   const users = await query('SELECT id FROM users WHERE email=? LIMIT 1', [email]);

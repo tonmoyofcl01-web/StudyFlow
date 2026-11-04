@@ -6,6 +6,7 @@ import {
   logout,
   me,
   updateProfile,
+  changePassword,
   requestPasswordReset,
   resetPassword,
 } from '../controllers/authController.js';
@@ -16,6 +17,7 @@ import {
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  changePasswordSchema,
 } from '../validators/schemas.js';
 
 const router = Router();
@@ -35,6 +37,13 @@ const forgotPasswordLimiter = rateLimit({
   legacyHeaders: false,
   message: { success: false, message: 'Too many reset requests. Please try again in 15 minutes.' },
 });
+const changePasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many password-change attempts. Please try again in 15 minutes.' },
+});
 const resetPasswordLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 10,
@@ -48,6 +57,7 @@ router.post('/login', validate(loginSchema), asyncHandler(login));
 router.post('/logout', requireAuth, asyncHandler(logout));
 router.get('/me', requireAuth, asyncHandler(me));
 router.patch('/profile', requireAuth, asyncHandler(updateProfile));
+router.patch('/change-password', requireAuth, changePasswordLimiter, validate(changePasswordSchema), asyncHandler(changePassword));
 router.post('/forgot-password', forgotPasswordLimiter, validate(forgotPasswordSchema), asyncHandler(requestPasswordReset));
 router.post('/reset-password', resetPasswordLimiter, validate(resetPasswordSchema), asyncHandler(resetPassword));
 
