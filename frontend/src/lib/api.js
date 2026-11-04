@@ -1,0 +1,2 @@
+const BASE=import.meta.env.VITE_API_URL||'http://localhost:5000/api';
+export async function api(path,options={}){const res=await fetch(`${BASE}${path}`,{credentials:'include',headers:{'Content-Type':'application/json',...(options.headers||{})},...options,body:options.body&&typeof options.body!=='string'?JSON.stringify(options.body):options.body});let data={};try{data=await res.json()}catch{}if(!res.ok){const e=new Error(data.message||'Request failed');e.status=res.status;e.details=data.errors;throw e;}return data;}

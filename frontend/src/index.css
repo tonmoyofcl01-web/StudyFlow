@@ -1,0 +1,498 @@
+@import "tailwindcss";
+
+/* Tailwind v4 normally follows the OS dark preference. StudyFlow uses an
+   explicit theme toggle, so dark utilities must follow the .dark class. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  font-family: 'DM Sans', sans-serif;
+  color: #172033;
+  background: #f7f8fc;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  color-scheme: light;
+  --timer-track: #e2e8f0;
+}
+
+html.dark {
+  color-scheme: dark;
+  --timer-track: #334155;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #f7f8fc;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: 'Manrope', sans-serif;
+}
+
+/* App canvas */
+.dark body {
+  background: #0c1220;
+  color: #e8edf8;
+}
+
+/* Reusable cards */
+.surface {
+  background: #ffffff;
+  border: 1px solid #e9edf5;
+  border-radius: 18px;
+  color: #172033;
+}
+
+.dark .surface {
+  background: #141d2e !important;
+  border-color: #26354b !important;
+  color: #e8edf8;
+}
+
+.soft-shadow {
+  box-shadow: 0 8px 30px rgba(31, 49, 83, 0.045);
+}
+
+.dark .soft-shadow {
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.16);
+}
+
+/* Shared form controls */
+.field {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: #172033;
+  caret-color: #4f46e5;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.field::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
+.field:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.field:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.dark .field {
+  border-color: #344258;
+  background: #0f172a;
+  color: #f8fafc;
+  caret-color: #ffffff;
+}
+
+.dark .field::placeholder {
+  color: #8291a8;
+}
+
+.dark .field:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18);
+}
+
+/* Search fields need extra room for their leading icon. The !important is
+   intentional: it wins over the base .field padding declaration. */
+.search-field {
+  padding-left: 2.55rem !important;
+}
+
+/* Native date/time controls should use the selected application theme. */
+html.dark input[type='date'],
+html.dark input[type='datetime-local'],
+html.dark input[type='time'],
+html.dark input[type='month'] {
+  color-scheme: dark;
+}
+
+html:not(.dark) input[type='date'],
+html:not(.dark) input[type='datetime-local'],
+html:not(.dark) input[type='time'],
+html:not(.dark) input[type='month'] {
+  color-scheme: light;
+  --timer-track: #e2e8f0;
+}
+
+/* Chrome autofill: keep the text and fill colors readable in both themes. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #172033 !important;
+  caret-color: #4f46e5 !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 99999s ease-out;
+}
+
+html.dark input:-webkit-autofill,
+html.dark input:-webkit-autofill:hover,
+html.dark input:-webkit-autofill:focus,
+html.dark input:-webkit-autofill:active {
+  -webkit-text-fill-color: #f8fafc !important;
+  caret-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0 1000px #0f172a inset !important;
+  box-shadow: 0 0 0 1000px #0f172a inset !important;
+}
+
+input:-moz-autofill {
+  color: #172033 !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+}
+
+html.dark input:-moz-autofill {
+  color: #f8fafc !important;
+  box-shadow: 0 0 0 1000px #0f172a inset !important;
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 42px;
+  background: #4f46e5;
+  color: #ffffff;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 10px 15px;
+  font-weight: 600;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+.btn-primary:focus-visible,
+.btn-ghost:focus-visible,
+.nav-item:focus-visible {
+  outline: 3px solid rgba(129, 140, 248, 0.65);
+  outline-offset: 2px;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 9px 12px;
+  color: #475569;
+  background: transparent;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.dark .btn-ghost {
+  border-color: #3a4961;
+  color: #cbd5e1;
+}
+
+.dark .btn-ghost:hover:not(:disabled) {
+  background: #1e293b;
+  border-color: #64748b;
+}
+
+.btn-ghost:disabled,
+.btn-primary:disabled {
+  opacity: 0.48;
+}
+
+/* Form labels */
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.dark .label {
+  color: #a8b5c9;
+}
+
+/* Sidebar navigation */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.nav-item:hover {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.nav-item.active {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.dark .nav-item {
+  color: #9aa9c0;
+}
+
+.dark .nav-item:hover {
+  background: #1b2940;
+  color: #e2e8f0;
+}
+
+.dark .nav-item.active {
+  background: #252b50;
+  color: #c7d2fe;
+}
+
+/* Dark-mode compatibility for existing Tailwind utility surfaces and text.
+   These rules keep legacy bg-white panels from remaining bright white. */
+.dark .bg-slate-50 {
+  background-color: #111b2c !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: #1e293b !important;
+}
+
+.dark .border-slate-100 {
+  border-color: #26354b !important;
+}
+
+.dark .text-slate-500 {
+  color: #a8b5c9 !important;
+}
+
+.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .bg-indigo-50 {
+  background-color: rgba(79, 70, 229, 0.16) !important;
+}
+
+.dark .bg-amber-50 {
+  background-color: rgba(217, 119, 6, 0.14) !important;
+}
+
+.dark .bg-rose-50 {
+  background-color: rgba(225, 29, 72, 0.13) !important;
+}
+
+.dark .bg-emerald-50 {
+  background-color: rgba(5, 150, 105, 0.14) !important;
+}
+
+.dark .text-indigo-600 {
+  color: #a5b4fc !important;
+}
+
+.dark .text-rose-600 {
+  color: #fda4af !important;
+}
+
+/* Scrollbar */
+.scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9px;
+}
+
+.dark .scrollbar::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+/* Motion */
+.fade-in {
+  animation: fade 0.25s ease;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* Calendar: explicit theme-aware styles for weekday strip, date cells and period label. */
+.calendar-period-label {
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+html.dark .calendar-period-label {
+  color: #f8fafc !important;
+}
+
+.calendar-weekday-row {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.calendar-weekday {
+  color: #64748b;
+}
+
+html.dark .calendar-weekday-row {
+  background: #101a2b !important;
+  border-color: #26354b !important;
+}
+
+html.dark .calendar-weekday {
+  color: #a8b5c9 !important;
+}
+
+.calendar-day-cell {
+  min-height: 108px;
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+html.dark .calendar-day-cell {
+  background: #141d2e !important;
+  border-color: #26354b !important;
+}
+
+.calendar-grid-month .calendar-day-cell {
+  min-height: 112px;
+}
+
+.calendar-grid-week .calendar-day-cell {
+  min-height: 220px;
+}
+
+.calendar-grid-day .calendar-day-cell {
+  min-height: 320px;
+}
+
+.calendar-day-cell.calendar-day-outside {
+  opacity: 0.48;
+}
+
+.calendar-day-cell.calendar-day-today {
+  background: #eef2ff;
+}
+
+html.dark .calendar-day-cell.calendar-day-today {
+  background: #201f49 !important;
+}
+
+.calendar-day-number {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  place-items: center;
+  border-radius: 9999px;
+  padding: 0 4px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+html.dark .calendar-day-number {
+  color: #dbe5f4;
+}
+
+.calendar-day-number-today {
+  background: #4f46e5;
+  color: #ffffff !important;
+}
+
+.analytics-empty-state {
+  min-height: 240px;
+}
+
+/* The compact navigation keeps all sections visible on typical laptop screens. */
+.sidebar-nav .nav-item {
+  min-height: 36px;
+  padding: 7px 10px;
+  font-size: 13px;
+}
+
+@media (max-width: 639px) {
+  .calendar-grid-month .calendar-day-cell {
+    min-height: 86px;
+    padding: 6px;
+  }
+
+  .calendar-grid-week .calendar-day-cell {
+    min-height: 150px;
+  }
+}
+
+
+.theme-status-text {
+  color: #1e293b;
+}
+
+html.dark .theme-status-text {
+  color: #f1f5f9 !important;
+}

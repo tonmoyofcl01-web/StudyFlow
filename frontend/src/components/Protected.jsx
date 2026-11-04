@@ -1,0 +1,1 @@
+import {Navigate,Outlet} from 'react-router-dom';import {useAuth} from '../context/AuthContext';export default function Protected(){const {user,loading}=useAuth();if(loading)return <div className="min-h-screen grid place-items-center text-indigo-600">Loading StudyFlow…</div>;return user?<Outlet/>:<Navigate to="/login" replace/>;}

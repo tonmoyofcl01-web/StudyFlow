@@ -1,0 +1,2 @@
+import {Router} from 'express';import {makeEntityController} from '../controllers/entityController.js';import {asyncHandler} from '../utils/asyncHandler.js';import {entitySchema} from '../validators/schemas.js';
+export function entityRouter(kind){const r=Router();const c=makeEntityController(kind);const validate=(req,res,next)=>{try{req.body=entitySchema.parse(req.body);next()}catch(e){next(e)}};r.get('/',asyncHandler(c.list));r.post('/',validate,asyncHandler(c.create));r.patch('/:id',validate,asyncHandler(c.update));r.delete('/:id',asyncHandler(c.remove));return r;}

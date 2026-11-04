@@ -1,0 +1,78 @@
+STUDYFLOW — WINDOWS QUICK START
+================================
+
+REQUIREMENTS
+- Windows 10/11
+- Node.js 22.12+ and npm
+- MySQL Server 8.x
+- MySQL Workbench recommended
+
+1) OPEN THE PROJECT
+Extract the ZIP and open Command Prompt in the StudyFlow folder.
+
+2) CREATE THE DATABASE
+In MySQL Workbench, connect as an administrator and execute:
+
+  backend/sql/00-create-database.sql
+
+Then create the application user (first-time setup):
+
+  CREATE USER 'studyflow_app'@'localhost' IDENTIFIED BY 'YOUR_OWN_PASSWORD';
+  GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, REFERENCES
+  ON studyflow.* TO 'studyflow_app'@'localhost';
+  FLUSH PRIVILEGES;
+
+Replace YOUR_OWN_PASSWORD before running. If the user already exists, use
+ALTER USER ... IDENTIFIED BY 'YOUR_OWN_PASSWORD' instead of CREATE USER.
+
+3) CREATE YOUR PRIVATE ENV FILE
+From the StudyFlow folder:
+
+  copy backend\.env.example backend\.env
+  notepad backend\.env
+
+Set DB_PASSWORD to the password above. Generate a JWT secret locally:
+
+  node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+
+Paste the result into JWT_SECRET. Never share backend/.env or commit it.
+
+4) INSTALL DEPENDENCIES
+From the StudyFlow folder:
+
+  npm install
+  npm --prefix backend install
+  npm --prefix frontend install
+
+5) CREATE DATABASE TABLES
+From the StudyFlow folder:
+
+  npm --prefix backend run db:init
+
+Alternatively, execute backend/sql/01-schema.sql in MySQL Workbench.
+
+6) START THE APP (TWO TERMINALS)
+Terminal 1, from the StudyFlow folder:
+
+  npm --prefix backend run dev
+
+Terminal 2, from the StudyFlow folder:
+
+  npm --prefix frontend run dev
+
+Open http://localhost:5173 and register your own account.
+
+7) VERIFY
+From the StudyFlow folder:
+
+  npm run build
+  npm test
+
+See README.md for complete setup, feature list, security notes and
+troubleshooting.
+
+IMPORTANT
+- No default login credentials are shipped; register your own account.
+- This ZIP does not include node_modules, .env, build output, or database data.
+- The archive does not replace or reset your existing MySQL database.
+- Keep your existing backend/.env when updating an existing installation.
