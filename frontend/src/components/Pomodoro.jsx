@@ -11,6 +11,7 @@ const DEFAULT_STATE = {
   endsAt: null,
   completed: 0,
   focusStartedAt: null,
+  hasStarted: false,
 };
 
 function readState() {
@@ -71,6 +72,7 @@ export default function Pomodoro() {
         endsAt: null,
         completed: current.mode === 'focus' ? current.completed + 1 : current.completed,
         focusStartedAt: null,
+        hasStarted: false,
       }));
       return;
     }
@@ -85,6 +87,7 @@ export default function Pomodoro() {
     setState((current) => ({
       ...current,
       running: true,
+      hasStarted: true,
       endsAt: Date.now() + current.remaining * 1000,
       focusStartedAt: current.mode === 'focus'
         ? (current.focusStartedAt || Date.now())
@@ -109,6 +112,7 @@ export default function Pomodoro() {
       remaining: current.mode === 'focus' ? current.workMinutes * 60 : current.breakMinutes * 60,
       endsAt: null,
       focusStartedAt: null,
+      hasStarted: false,
     }));
   };
 
@@ -164,8 +168,10 @@ export default function Pomodoro() {
                 <div className="font-display text-3xl font-extrabold tabular-nums text-slate-900 dark:text-white">
                   {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
                 </div>
-                <div className="mt-1 text-[10px] font-bold uppercase tracking-[.14em] text-slate-400">
-                  {state.running ? 'In progress' : 'Ready when you are'}
+                <div className="mt-1 whitespace-nowrap text-[9px] font-bold uppercase leading-none tracking-[.12em] text-slate-400">
+                  {state.running
+                    ? (state.mode === 'focus' ? 'FOCUSING' : 'ON BREAK')
+                    : state.hasStarted ? 'PAUSED' : 'READY'}
                 </div>
               </div>
             </div>

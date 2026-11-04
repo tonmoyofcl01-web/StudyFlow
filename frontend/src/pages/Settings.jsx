@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, Moon, Sun, ShieldCheck, UserRound } from 'lucide-react';
+import { Check, Moon, Sun, ShieldCheck, UserRound, LockKeyhole, MailCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
 import { useTheme } from '../context/ThemeContext';
@@ -156,10 +156,20 @@ export default function Settings() {
                 Account security
               </h2>
               <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Your password is stored as a bcrypt hash. Authentication uses a signed HTTP-only cookie.
+                Passwords are hashed with bcrypt. Sign-in uses an HTTP-only session cookie, and password-reset tokens are stored as SHA-256 hashes, expire after 30 minutes, and work once.
               </p>
-              <p className="mt-3 rounded-lg border border-amber-200/70 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
-                For production use, configure HTTPS and connect the password-reset flow to a real email provider.
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-900/60">
+                  <LockKeyhole size={16} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-300" />
+                  <span className="text-xs leading-5 text-slate-600 dark:text-slate-300">Production enforces HTTPS, secure cookies, HSTS and a strong JWT secret.</span>
+                </div>
+                <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-900/60">
+                  <MailCheck size={16} className="mt-0.5 shrink-0 text-indigo-600 dark:text-indigo-300" />
+                  <span className="text-xs leading-5 text-slate-600 dark:text-slate-300">Production password-reset links are delivered through your configured SMTP provider.</span>
+                </div>
+              </div>
+              <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                Local development can use a development-only reset token. Never deploy with development settings or expose that token workflow publicly.
               </p>
             </div>
           </div>
