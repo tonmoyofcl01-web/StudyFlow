@@ -6,6 +6,7 @@ import {
   GraduationCap,
   Timer,
   CalendarDays,
+  CalendarRange,
   Target,
   BarChart3,
   Bell,
@@ -30,7 +31,8 @@ const groups = [
   {
     label: 'Plan & improve',
     items: [
-      ['Timetable', '/app/timetable', Sparkles],
+      ['Timetable planner', '/app/timetable', Sparkles],
+      ['My timetable', '/app/my-timetable', CalendarRange],
       ['Calendar', '/app/calendar', CalendarDays],
       ['Goals', '/app/goals', Target],
       ['Analytics', '/app/analytics', BarChart3],

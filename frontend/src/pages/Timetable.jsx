@@ -21,6 +21,65 @@ function localDateTime(value) {
   });
 }
 
+function subtractOccupiedTime(availability, sessions, bufferMinutes = 10) {
+  const occupied = (sessions || [])
+    .filter((session) => session.status !== 'cancelled')
+    .map((session) => {
+      const start = new Date(session.start_at).getTime();
+      const explicitEnd = session.end_at ? new Date(session.end_at).getTime() : NaN;
+      const duration = Number(session.duration_minutes) || 0;
+      const end = Number.isFinite(explicitEnd)
+        ? explicitEnd
+        : start + duration * 60000;
+
+      return { start, end: end + bufferMinutes * 60000 };
+    })
+    .filter((range) => Number.isFinite(range.start) && Number.isFinite(range.end) && range.end > range.start)
+    .sort((a, b) => a.start - b.start);
+
+  return availability.flatMap((slot) => {
+    let fragments = [{
+      start: new Date(slot.start).getTime(),
+      end: new Date(slot.end).getTime(),
+    }];
+
+    occupied.forEach((blocked) => {
+      fragments = fragments.flatMap((fragment) => {
+        if (blocked.end <= fragment.start || blocked.start >= fragment.end) {
+          return [fragment];
+        }
+
+        const remaining = [];
+        if (blocked.start > fragment.start) {
+          remaining.push({ start: fragment.start, end: Math.min(blocked.start, fragment.end) });
+        }
+        if (blocked.end < fragment.end) {
+          remaining.push({ start: Math.max(blocked.end, fragment.start), end: fragment.end });
+        }
+        return remaining;
+      });
+    });
+
+    return fragments
+      .filter((fragment) => fragment.end - fragment.start >= 15 * 60000)
+      .map((fragment) => ({
+        start: new Date(fragment.start).toISOString(),
+        end: new Date(fragment.end).toISOString(),
+      }));
+  });
+}
+
+function localDateTimeInputMin(date = new Date()) {
+  const pad = (value) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function totalMinutes(ranges) {
+  return ranges.reduce((total, range) => {
+    return total + Math.max(0, (new Date(range.end) - new Date(range.start)) / 60000);
+  }, 0);
+}
+
 export default function Timetable() {
   const [slots, setSlots] = useState([]);
   const [start, setStart] = useState('');
@@ -31,6 +90,7 @@ export default function Timetable() {
   const [sessionMinutes, setSessionMinutes] = useState(50);
   const [maxDailyMinutes, setMaxDailyMinutes] = useState(240);
   const [saved, setSaved] = useState(false);
+  const [excludedMinutes, setExcludedMinutes] = useState(0);
 
   const addSlot = () => {
     setError('');
@@ -43,6 +103,10 @@ export default function Timetable() {
     const endDate = new Date(end);
     if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()) || endDate <= startDate) {
       setError('The end time must be later than the start time.');
+      return;
+    }
+    if (startDate <= new Date()) {
+      setError('Choose a future availability window. Past time cannot be scheduled.');
       return;
     }
 
@@ -63,6 +127,7 @@ export default function Timetable() {
     ].sort((a, b) => new Date(a.start) - new Date(b.start)));
     setData(null);
     setSaved(false);
+    setExcludedMinutes(0);
     setStart('');
     setEnd('');
   };
@@ -82,10 +147,23 @@ export default function Timetable() {
         throw new Error('Daily study limit must be between 30 and 720 minutes.');
       }
 
+      // Exclude existing sessions before generation as a client-side safety
+      // net. The backend scheduler also checks its existing-session records.
+      const existingResult = await api('/study-sessions');
+      const existingSessions = Array.isArray(existingResult.data) ? existingResult.data : [];
+      const freeAvailability = subtractOccupiedTime(slots, existingSessions, 10);
+
+      if (!freeAvailability.length) {
+        throw new Error('Your selected availability is already occupied by saved study sessions. Add another free time window.');
+      }
+
+      const blockedMinutes = Math.max(0, Math.round(totalMinutes(slots) - totalMinutes(freeAvailability)));
+      setExcludedMinutes(blockedMinutes);
+
       const result = await api('/timetable/generate', {
         method: 'POST',
         body: {
-          availability: slots,
+          availability: freeAvailability,
           save,
           preferences: {
             sessionMinutes: Number(sessionMinutes),
@@ -141,7 +219,12 @@ export default function Timetable() {
                 type="datetime-local"
                 className="field"
                 value={start}
-                onChange={(event) => setStart(event.target.value)}
+                min={localDateTimeInputMin()}
+                onChange={(event) => {
+                  setStart(event.target.value);
+                  setData(null);
+                  setSaved(false);
+                }}
               />
             </div>
             <div>
@@ -151,8 +234,12 @@ export default function Timetable() {
                 type="datetime-local"
                 className="field"
                 value={end}
-                min={start || undefined}
-                onChange={(event) => setEnd(event.target.value)}
+                min={start || localDateTimeInputMin()}
+                onChange={(event) => {
+                  setEnd(event.target.value);
+                  setData(null);
+                  setSaved(false);
+                }}
               />
             </div>
 
@@ -220,6 +307,12 @@ export default function Timetable() {
                 />
               </div>
             </div>
+
+            {excludedMinutes > 0 && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/25 dark:text-amber-200">
+                {excludedMinutes} minutes were reserved around your existing study sessions to prevent timetable conflicts.
+              </div>
+            )}
 
             <button
               type="button"
